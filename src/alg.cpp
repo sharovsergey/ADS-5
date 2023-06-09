@@ -1,98 +1,99 @@
 // Copyright 2021 NNTU-CS
-#include <string>
+##include <string>
 #include <map>
 #include "tstack.h"
 
-using namespace std;
-
-
-bool isOperator(const char &c) {
-    return c == '+' || c == '-' || c == '*' || c == '/';
-}
-
-bool hasLessOrEqualPriority(const char &op1, const char &op2) {
-    if ((op1 == '+' || op1 == '-') && (op2 == '*' || op2 == '/')) {
-        return true;
+int prior(char chek) {
+    switch (chek) {
+    case '(':
+        return 0;
+        break;
+    case ')':
+        return 1;
+        break;
+    case '+':
+        return 2;
+        break;
+    case '-':
+        return 2;
+        break;
+    case '*':
+        return 3;
+        break;
+    case '/':
+        return 3;
+        break;
+    default:
+        return 0;
+        break;
     }
-    return false;
 }
-
-
-string infixToPostfix(const string &infix) {
-    stack<char> s;
-    string postfix;
-
-    for (const char &c : infix) {
-        if (c == '(') {
-            s.push(c);
-        } else if (c == ')') {
-            while (!s.empty() && s.top() != '(') {
-                postfix.push_back(s.top());
-                s.pop();
+std::string infx2pstfx(std::string inf) {
+  // добавьте код
+  return std::string("");
+TStack<char, 100> opStack;
+    std::string result = "";
+    for (int i = 0; i < inf.size(); i++) {
+        if (isdigit(inf[i]) != 0) {
+            result += inf[i];
+        } else if (prior(inf[i]) == 2 || prior(inf[i]) == 3) {
+            result += " ";
+            if (opStack.isEmpty() || prior(opStack.get()) == 0 ||
+                prior(inf[i]) > prior(opStack.get())) {
+                opStack.push(inf[i]);
+            } else if (prior(inf[i]) <= prior(opStack.get())) {
+                while (prior(inf[i]) <= prior(opStack.get())) {
+                    result += opStack.pop();
+                    result += " ";
+                }
+                opStack.push(inf[i]);
             }
-            s.pop();
-        } else if (isOperator(c)) {
-            while (!s.empty() && s.top() != '(' && hasLessOrEqualPriority(c, s.top())) {
-                postfix.push_back(s.top());
-                s.pop();
+        } else if (prior(inf[i]) == 0) {
+            opStack.push(inf[i]);
+        } else if (prior(inf[i]) == 1) {
+            while (prior(opStack.get()) != 0) {
+                result += " ";
+                result += opStack.pop();
             }
-            s.push(c);
-        } else {
-            postfix.push_back(c);
+            opStack.pop();
         }
     }
-
-    while (!s.empty()) {
-        postfix.push_back(s.top());
-        s.pop();
+    while (!opStack.isEmpty()) {
+        result += " ";
+        result += opStack.pop();
     }
-
-    return postfix;
+    return std::string(result);
 }
-
-int main() {
-    string infix = "a+b*c-d/e";
-    string postfix = infixToPostfix(infix);
-    cout << postfix << endl;
-    return 0;
-}
-bool isOperator(const char &c) {
-    return c == '+' || c == '-' || c == '*' || c == '/';
-}
-double applyOperator(const double &operand1, const double &operand2, const char &op) {
-    if (op == '+') {
-        return operand1 + operand2;
-    } else if (op == '-') {
-        return operand1 - operand2;
-    } else if (op == '*') {
-        return operand1 * operand2;
-    } else if (op == '/') {
-        return operand1 / operand2;
+int calculate(const int a, const int b, const char oper) {
+    switch (oper) {
+        case '+':
+            return b + a;
+        case '-':
+            return b - a;
+        case '*':
+            return a * b;
+        case '/':
+            return b / a;
+        default:
+            break;
     }
     return 0;
 }
-double evaluatePostfix(const string &postfix) {
-    stack<double> s;
-    double operand1, operand2;
 
-    for (const char &c : postfix) {
-        if (isdigit(c)) {
-            s.push((double)(c - '0'));
-        } else if (isOperator(c)) {
-            operand2 = s.top();
-            s.pop();
-            operand1 = s.top();
-            s.pop();
-            s.push(applyOperator(operand1, operand2, c));
+int eval(std::string pref) {
+  // добавьте код
+  return 0;
+TStack<int, 100> opStack2;
+    for (int i = 0; i < pref.size(); i++) {
+        if (isdigit(pref[i]) != 0) {
+            int num = pref[i] - '0';
+            opStack2.push(num);
+        } else if (prior(pref[i]) == 2 || prior(pref[i]) == 3) {
+            int a = opStack2.pop();
+            int b = opStack2.pop();
+            opStack2.push(calculate(a, b, pref[i]));
         }
     }
-
-    return s.top();
+    return opStack2.pop();
 }
-
-int main() {
-    string postfix = "abc*+de/-";
-    double result = evaluatePostfix(postfix);
-    cout << result << endl;
-    return 0;
 }
