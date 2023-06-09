@@ -2,43 +2,42 @@
 #ifndef INCLUDE_TSTACK_H_
 #define INCLUDE_TSTACK_H_
 
-
 #include <string>
 template<typename T, int size>
 class TStack {
-// добавьте код стека
-private:
-T arr[100];
-int serg;
+  // добавьте код стека
+ private:
+    T *arr;
+    int head;
 
-
-public:
-TStack() :serg(-1) {}
-void push(T value) {
-if (isFull()) {
-throw std::string("Stack is full");
-} else {
-arr[++serg] = value;
-}
-}
-const T& pop() {
-if (isEmpty()) {
-throw std::string("Stack is empty");
-} else {
-return arr[serg--];
-}
-}
-bool isEmpty()const {
-return serg == -1;
-}
-bool isFull()const {
-return serg == size - 1;
-}
-const T& get()const {
-return arr[serg];
-}
+ public:
+    TStack() :head(-1) {
+       arr = new T[size];
+    }
+    void Push(T val) {
+        if (IsFull())
+            throw std::string("full");
+        else
+            arr[++head] = val;
+    }
+    const T& pop() {
+        if (IsEmpty())
+            throw std::string("emp");
+        else
+            return arr[head--];
+    }
+    const T& Get() {
+        if (IsEmpty())
+            throw std::string("emp");
+        else
+            return arr[head];
+    }
+    bool IsFull() const {
+        return head == size - 1;
+    }
+    bool IsEmpty() const {
+        return head == -1;
+    }
 };
 
-
 #endif
- // INCLUDE_TSTACK_H_
