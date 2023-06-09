@@ -1,106 +1,246 @@
 // Copyright 2021 NNTU-CS
-#include <ctype.h>
-#include <string>
 #include <map>
+
 #include "tstack.h"
 
-int getPr(char c) {
-   switch (c) {
-   case '(':
-       return 0;
-   case ')':
-       return 1;
-   case '+':
-       return 2;
-   case '-':
-       return 2;
-   case '*':
-       return 3;
-   case '/':
-       return 3;
-   }
-   return -1;
-}
-std::string infx2pstfx(std::string inf) {
- // добавьте код
- return std::string("");
-   TStack<char, 100> ops;
-   std::string res, num;
-   for (int serg = 0; serg < inf.length(); serg++) {
-       if (isdigit(inf[serg])) {
-           num += inf[serg];
-       } else { // операция
-           if (num.length() > 0) {
-               res += num;
-               res += " ";
-               num = "";
-           }
-           if (inf[serg] == '(' ||
-               ops.IsEmpty() ||
-               getPr(inf[serg]) > getPr(ops.Get())) {
-               ops.Push(inf[serg]);
-           } else if (inf[serg] == ')') {
-               char sim = ops.pop();
-               while (sim != '(') {
-                   res += sim;
-                   res += " ";
-                   sim = ops.pop();
-               }
-           } else {
-               while (!ops.IsEmpty() && getPr(inf[serg]) <= getPr(ops.Get())) {
-                   res += ops.pop();
-                   res += " ";
-               }
-               ops.Push(inf[serg]);
-           }
-       }
-   }
-   if (num.length() > 0) {
-       res += num;
-       res += " ";
-       num = "";
-   }
-   while (!ops.IsEmpty()) {
-       res += ops.pop();
-       if (!ops.IsEmpty()) res += " ";
-   }
-   return res;
+
+
+int getPrior(char operation) {
+
+  std::pair<char, int> priority[6];
+
+  switch (operation) {
+
+    case'(':
+
+      priority[0].first = '(';
+
+      priority[0].second = 0;
+
+    case')':
+
+      priority[1].first = ')';
+
+      priority[1].second = 1;
+
+    case'+':
+
+      priority[2].first = '+';
+
+      priority[2].second = 2;
+
+    case'-':
+
+      priority[3].first = '-';
+
+      priority[3].second = 2;
+
+    case'*':
+
+      priority[4].first = '*';
+
+      priority[4].second = 3;
+
+    case'/':
+
+      priority[5].first = '/';
+
+      priority[5].second = 3;
+
+  }
+
+  int prioritet = -1;
+
+  for (int j = 0; j < 6; ++j) {
+
+    if (operation == priority[j].first) {
+
+      prioritet = priority[j].second;
+
+      break;
+
+    }
+
+  }
+
+  return prioritet;
+
 }
 
+
+
+std::string space(const std::string& s) {
+
+  if (s.length() <= 2) return s;
+
+  int n = 2 - s.length() % 2;
+
+  std::string r(s, 0, n);
+
+  for (auto it = s.begin() + n; it != s.end();) {
+
+    r += ' '; r += *it++;;
+
+  }
+
+  return r;
+
+}
+
+
+
+int count(const int& a, const int& b, const int& op) {
+
+  switch (op) {
+
+    default:
+
+      break;
+
+    case'+': return a + b;
+
+    case'-': return a - b;
+
+    case'*': return a * b;
+
+    case'/': return a / b;
+
+  }
+
+  return 0;
+
+}
+
+
+
+std::string infx2pstfx(std::string inf) {
+
+  // добавьте код
+
+  return std::string("");
+
+  std::string work;
+
+  Tstack<char, 100> stack1;
+
+  for (auto& op : inf) {
+
+    int prior = getPrior(op);
+
+    if (prior == -1) {
+
+      work += op;
+
+    } else {
+
+      if (stack1.get() < prior || prior == 0 || stack1.isEmpty()) {
+
+        stack1.push(op);
+
+      } else if (op == ')') {
+
+        char sm = stack1.get();
+
+        while (getPrior(sm) >= prior) {
+
+          work += sm;
+
+          stack1.pop();
+
+          sm = stack1.get();
+
+        }
+
+        stack1.pop();
+
+      } else {
+
+        char sm = stack1.get();
+
+        while (getPrior(sm) >= prior) {
+
+          work += sm;
+
+          stack1.pop();
+
+          sm = stack1.get();
+
+        }
+
+        stack1.push(op);
+
+      }
+
+    }
+
+  }
+
+  while (!stack1.isEmpty()) {
+
+    work += stack1.get();
+
+    stack1.pop();
+
+  }
+
+  work = space(work);
+
+  return work;
+
+}
+
+
+
 int eval(std::string pref) {
- // добавьте код
- return 0;
-   int first = 0, second = 0;
-   std::string num;
-   TStack<int, 100> nums;
-   for (int serg = 0; serg < pref.length(); serg++) {
-       if (isdigit(pref[serg])) {
-           num += pref[serg];
-       } else if (pref[serg] == ' ') {
-           if (num.length() > 0) {
-               nums.Push(stoi(num));
-               num = "";
-           }
-       } else {
-           int semiRes = 0;
-           second = nums.pop();
-           first = nums.pop();
-           switch (pref[serg]) {
-           case '+':
-               semiRes = first + second;
-               break;
-           case '-':
-               semiRes = first - second;
-               break;
-           case '*':
-               semiRes = first * second;
-               break;
-           case '/':
-               semiRes = first / second;
-               break;
-           }
-           nums.Push(semiRes);
-       }
-   }
-   return nums.pop();
+
+  // добавьте код
+
+  return 0;
+
+  Tstack<int, 100> stack1;
+
+  std::string num = "";
+
+  for (size_t i = 0; i < pref.size(); i++) {
+
+    if (getPrior(pref[i]) == -1) {
+
+      if (pref[i] == ' ') {
+
+        continue;
+
+      } else if (isdigit(pref[i + 1])) {
+
+        num += pref[i];
+
+        continue;
+
+      } else {
+
+        num += pref[i];
+
+        stack1.push(atoi(num.c_str()));
+
+        num = "";
+
+      }
+
+    } else {
+
+      int b = stack1.get();
+
+      stack1.pop();
+
+      int a = stack1.get();
+
+      stack1.pop();
+
+      stack1.push(count(a, b, pref[i]));
+
+    }
+
+  }
+
+  return stack1.get();
+
 }
