@@ -1,99 +1,106 @@
 // Copyright 2021 NNTU-CS
-##include <string>
+#include <ctype.h>
+#include <string>
 #include <map>
 #include "tstack.h"
 
-int prior(char chek) {
-    switch (chek) {
-    case '(':
-        return 0;
-        break;
-    case ')':
-        return 1;
-        break;
-    case '+':
-        return 2;
-        break;
-    case '-':
-        return 2;
-        break;
-    case '*':
-        return 3;
-        break;
-    case '/':
-        return 3;
-        break;
-    default:
-        return 0;
-        break;
-    }
+int getPr(char c) {
+   switch (c) {
+   case '(':
+       return 0;
+   case ')':
+       return 1;
+   case '+':
+       return 2;
+   case '-':
+       return 2;
+   case '*':
+       return 3;
+   case '/':
+       return 3;
+   }
+   return -1;
 }
 std::string infx2pstfx(std::string inf) {
-  // добавьте код
-  return std::string("");
-TStack<char, 100> opStack;
-    std::string result = "";
-    for (int i = 0; i < inf.size(); i++) {
-        if (isdigit(inf[i]) != 0) {
-            result += inf[i];
-        } else if (prior(inf[i]) == 2 || prior(inf[i]) == 3) {
-            result += " ";
-            if (opStack.isEmpty() || prior(opStack.get()) == 0 ||
-                prior(inf[i]) > prior(opStack.get())) {
-                opStack.push(inf[i]);
-            } else if (prior(inf[i]) <= prior(opStack.get())) {
-                while (prior(inf[i]) <= prior(opStack.get())) {
-                    result += opStack.pop();
-                    result += " ";
-                }
-                opStack.push(inf[i]);
-            }
-        } else if (prior(inf[i]) == 0) {
-            opStack.push(inf[i]);
-        } else if (prior(inf[i]) == 1) {
-            while (prior(opStack.get()) != 0) {
-                result += " ";
-                result += opStack.pop();
-            }
-            opStack.pop();
-        }
-    }
-    while (!opStack.isEmpty()) {
-        result += " ";
-        result += opStack.pop();
-    }
-    return std::string(result);
-}
-int calculate(const int a, const int b, const char oper) {
-    switch (oper) {
-        case '+':
-            return b + a;
-        case '-':
-            return b - a;
-        case '*':
-            return a * b;
-        case '/':
-            return b / a;
-        default:
-            break;
-    }
-    return 0;
+ // добавьте код
+ return std::string("");
+   TStack<char, 100> ops;
+   std::string res, num;
+   for (int serg = 0; serg < inf.length(); serg++) {
+       if (isdigit(inf[serg])) {
+           num += inf[serg];
+       } else { // операция
+           if (num.length() > 0) {
+               res += num;
+               res += " ";
+               num = "";
+           }
+           if (inf[serg] == '(' ||
+               ops.IsEmpty() ||
+               getPr(inf[serg]) > getPr(ops.Get())) {
+               ops.Push(inf[serg]);
+           } else if (inf[serg] == ')') {
+               char sim = ops.pop();
+               while (sim != '(') {
+                   res += sim;
+                   res += " ";
+                   sim = ops.pop();
+               }
+           } else {
+               while (!ops.IsEmpty() && getPr(inf[serg]) <= getPr(ops.Get())) {
+                   res += ops.pop();
+                   res += " ";
+               }
+               ops.Push(inf[serg]);
+           }
+       }
+   }
+   if (num.length() > 0) {
+       res += num;
+       res += " ";
+       num = "";
+   }
+   while (!ops.IsEmpty()) {
+       res += ops.pop();
+       if (!ops.IsEmpty()) res += " ";
+   }
+   return res;
 }
 
 int eval(std::string pref) {
-  // добавьте код
-  return 0;
-TStack<int, 100> opStack2;
-    for (int i = 0; i < pref.size(); i++) {
-        if (isdigit(pref[i]) != 0) {
-            int num = pref[i] - '0';
-            opStack2.push(num);
-        } else if (prior(pref[i]) == 2 || prior(pref[i]) == 3) {
-            int a = opStack2.pop();
-            int b = opStack2.pop();
-            opStack2.push(calculate(a, b, pref[i]));
-        }
-    }
-    return opStack2.pop();
-}
+ // добавьте код
+ return 0;
+   int first = 0, second = 0;
+   std::string num;
+   TStack<int, 100> nums;
+   for (int serg = 0; serg < pref.length(); serg++) {
+       if (isdigit(pref[serg])) {
+           num += pref[serg];
+       } else if (pref[serg] == ' ') {
+           if (num.length() > 0) {
+               nums.Push(stoi(num));
+               num = "";
+           }
+       } else {
+           int semiRes = 0;
+           second = nums.pop();
+           first = nums.pop();
+           switch (pref[serg]) {
+           case '+':
+               semiRes = first + second;
+               break;
+           case '-':
+               semiRes = first - second;
+               break;
+           case '*':
+               semiRes = first * second;
+               break;
+           case '/':
+               semiRes = first / second;
+               break;
+           }
+           nums.Push(semiRes);
+       }
+   }
+   return nums.pop();
 }
