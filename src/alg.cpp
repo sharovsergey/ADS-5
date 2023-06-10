@@ -3,123 +3,98 @@
 #include <map>
 #include "tstack.h"
 
-int getPrior(char operation) {
-  std::pair<char, int> priority[6];
-  switch (operation) {
-    case'(':
-      priority[0].first = '(';
-      priority[0].second = 0;
-    case')':
-      priority[1].first = ')';
-      priority[1].second = 1;
-    case'+':
-      priority[2].first = '+';
-      priority[2].second = 2;
-    case'-':
-      priority[3].first = '-';
-      priority[3].second = 2;
-    case'*':
-      priority[4].first = '*';
-      priority[4].second = 3;
-    case'/':
-      priority[5].first = '/';
-      priority[5].second = 3;
-  }
-  int prioritet = -1;
-  for (int j = 0; j < 6; ++j) {
-    if (operation == priority[j].first) {
-      prioritet = priority[j].second;
-      break;
+int priority(char x) {
+  if (x == '(')
+    return 0;
+  if (x == ')')
+    return 1;
+  if ((x == '+') || (x == '-'))
+    return 2;
+  if ((x == '*') || (x == '/'))
+    return 3;
+  if ((x == '(') || (x == ')'))
+    return 0;
+  return -1;
+}
+
+std::string infixToPostfix(std::string infix) {
+  TStack<char, 100> stack;
+  std::string postfix = "";
+  int index = 0;
+  for (char a : infix) {
+    bool flag = true;
+    if (priority(a) == -1) {
+      postfix += a;
+      postfix += ' ';
+      flag = false;
     }
-  }
-  return prioritet;
-}
-
-std::string space(const std::string& s) {
-  if (s.length() <= 2) return s;
-  int n = 2 - s.length() % 2;
-  std::string r(s, 0, n);
-  for (auto it = s.begin() + n; it != s.end();) {
-    r += ' '; r += *it++;;
-  }
-  return r;
-}
-
-int count(const int& a, const int& b, const int& op) {
-  switch (op) {
-    default:
-      break;
-    case'+': return a + b;
-    case'-': return a - b;
-    case'*': return a * b;
-    case'/': return a / b;
-  }
-  return 0;
-}
-
-std::string infx2pstfx(std::string inf) {
-  // добавьте код
-  return std::string("");
-  std::string work;
-  Tstack<char, 100> stack1;
-  for (auto& op : inf) {
-    int prior = getPrior(op);
-    if (prior == -1) {
-      work += op;
-    } else {
-      if (stack1.get() < prior || prior == 0 || stack1.isEmpty()) {
-        stack1.push(op);
-      } else if (op == ')') {
-        char sm = stack1.get();
-        while (getPrior(sm) >= prior) {
-          work += sm;
-          stack1.pop();
-          sm = stack1.get();
-        }
-        stack1.pop();
-      } else {
-        char sm = stack1.get();
-        while (getPrior(sm) >= prior) {
-          work += sm;
-          stack1.pop();
-          sm = stack1.get();
-        }
-        stack1.push(op);
+    if (priority(a) == 0) {
+      stack.push(a);
+      flag = false;
+    }
+    if (priority(a) > priority(stack.top())) {
+      stack.push(a);
+      flag = false;
+    }
+    if (stack.empty() && priority(a) != -1) {
+      stack.push(a);
+      flag = false;
+    }
+    if (flag && a != ')') {
+      while (priority(stack.top()) >= priority(a)) {
+        postfix += stack.pop();
+        postfix += ' ';
+      }
+      stack.push(a);
+    }
+    if (a == ')') {
+      while (stack.top() != '(') {
+        postfix += stack.pop();
+        postfix += ' ';
+      }
+      stack.pop();
+    }
+    if (index == infix.size() - 1) {
+      while (!stack.empty()) {
+        postfix += stack.pop();
+        if (stack.priority() != -1) postfix += ' ';
       }
     }
+    ++index;
   }
-  while (!stack1.isEmpty()) {
-    work += stack1.get();
-    stack1.pop();
-  }
-  work = space(work);
-  return work;
+  return postfix;
 }
 
-int eval(std::string pref) {
-  // добавьте код
-  return 0;
-  Tstack<int, 100> stack1;
-  std::string num = "";
-  for (size_t i = 0; i < pref.size(); i++) {
-    if (getPrior(pref[i]) == -1) {
-      if (pref[i] == ' ') {
-        continue;
-      } else if (isdigit(pref[i + 1])) {
-        num += pref[i];
-        continue;
-      } else {
-        num += pref[i];
-        stack1.push(atoi(num.c_str()));
-        num = "";
-      }
-    } else {
-      int b = stack1.get();
-      stack1.pop();
-      int a = stack1.get();
-      stack1.pop();
-      stack1.push(count(a, b, pref[i]));
+int evaluatePostfix(std::string postfix) {
+  TStack<int, 100> stack;
+  for (char a : postfix) {
+    if (a == '+') {
+      int tmp = stack.pop();
+      tmp = tmp + stack.pop();
+      stack.push(tmp);
+    }
+    if (a == '-') {
+      int tmp = stack.pop();
+      tmp = stack.pop() - tmp;
+      stack.push(tmp);
+    }
+    if (a == '/') {
+      int tmp = stack.pop();
+      tmp = stack.pop() / tmp;
+      stack.push(tmp);
+    }
+    if (a == '*') {
+      int tmp = stack.pop();
+      tmp = tmp * stack.pop();
+      stack.push(tmp);
+    }
+    if (a == ' ') {
+      continue;
+    }
+    if ((a - '0') > 0) {
+      int tmp = a - '0';
+      stack.push(tmp);
     }
   }
-  return stack1.get();
+  return stack.top();
 }
