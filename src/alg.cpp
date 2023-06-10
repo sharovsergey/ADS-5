@@ -3,98 +3,102 @@
 #include <map>
 #include "tstack.h"
 
-int priority(char x) {
-  if (x == '(')
-    return 0;
-  if (x == ')')
-    return 1;
-  if ((x == '+') || (x == '-'))
-    return 2;
-  if ((x == '*') || (x == '/'))
-    return 3;
-  if ((x == '(') || (x == ')'))
-    return 0;
-  return -1;
+int prior(char x) {
+if (x == '(')
+return 0;
+if (x == ')')
+return 1;
+if ((x == '+') || (x == '-'))
+return 2;
+if ((x == '*') || ( x == '/'))
+return 3;
+if ((x == '(') || (x ==')'))
+return 0;
+return -1;
 }
 
-std::string infixToPostfix(std::string infix) {
-  TStack<char, 100> stack;
-  std::string postfix = "";
-  int index = 0;
-  for (char a : infix) {
+std::string infx2pstfx(std::string inf) {
+  // добавьте код
+  return std::string("");
+TStack<char, 100> stack1;
+  std::string out = "";
+  int res = 0;
+  for (char a : inf) {
     bool flag = true;
-    if (priority(a) == -1) {
-      postfix += a;
-      postfix += ' ';
+    if (prior(a) == -1) {
+      out += a;
+      out += ' ';
       flag = false;
     }
-    if (priority(a) == 0) {
-      stack.push(a);
+    if (prior(a) == 0) {
+      stack1.push(a);
       flag = false;
     }
-    if (priority(a) > priority(stack.top())) {
-      stack.push(a);
+    if (prior(a) > prior(stack1.pol())) {
+      stack1.push(a);
       flag = false;
     }
-    if (stack.empty() && priority(a) != -1) {
-      stack.push(a);
+    if (stack1.empty() && prior(a) != -1) {
+      stack1.push(a);
       flag = false;
     }
     if (flag && a != ')') {
-      while (priority(stack.top()) >= priority(a)) {
-        postfix += stack.pop();
-        postfix += ' ';
+      while (prior(stack1.pol()) >= prior(a)) {
+        out += stack1.pop();
+        out += ' ';
       }
-      stack.push(a);
+      stack1.push(a);
     }
     if (a == ')') {
-      while (stack.top() != '(') {
-        postfix += stack.pop();
-        postfix += ' ';
+      while (stack1.pol() != '(') {
+        out += stack1.pop();
+        out += ' ';
       }
-      stack.pop();
+      stack1.pop();
     }
-    if (index == infix.size() - 1) {
-      while (!stack.empty()) {
-        postfix += stack.pop();
-        if (stack.priority() != -1) postfix += ' ';
+    if (res == inf.size() - 1) {
+      while (!stack1.empty()) {
+        out += stack1.pop();
+        if (stack1.pri() != -1) out += ' ';
       }
     }
-    ++index;
+    ++res;
   }
-  return postfix;
+  return out;
 }
 
-int evaluatePostfix(std::string postfix) {
-  TStack<int, 100> stack;
-  for (char a : postfix) {
+int eval(std::string pref) {
+  // добавьте код
+  return 0;
+  TStack<int, 100> stack2;
+  for (char a : pref) {
     if (a == '+') {
-      int tmp = stack.pop();
-      tmp = tmp + stack.pop();
-      stack.push(tmp);
+      int tmp = stack2.pop();
+      tmp = tmp + stack2.pop();
+      stack2.push(tmp);
     }
     if (a == '-') {
-      int tmp = stack.pop();
-      tmp = stack.pop() - tmp;
-      stack.push(tmp);
+      int tmp = stack2.pop();
+      tmp = stack2.pop() - tmp;
+      stack2.push(tmp);
     }
     if (a == '/') {
-      int tmp = stack.pop();
-      tmp = stack.pop() / tmp;
-      stack.push(tmp);
+      int tmp = stack2.pop();
+      tmp = stack2.pop() / tmp;
+      stack2.push(tmp);
     }
     if (a == '*') {
-      int tmp = stack.pop();
-      tmp = tmp * stack.pop();
-      stack.push(tmp);
+      int tmp = stack2.pop();
+      tmp = tmp * stack2.pop();
+      stack2.push(tmp);
     }
     if (a == ' ') {
       continue;
     }
     if ((a - '0') > 0) {
       int tmp = a - '0';
-      stack.push(tmp);
+      stack2.push(tmp);
     }
   }
-  return stack.top();
+  return stack2.pol();
 }
