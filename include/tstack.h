@@ -1,59 +1,30 @@
 // Copyright 2021 NNTU-CS
-#ifndef INCLUDE_TPAIRS_H_
-#define INCLUDE_TPAIRS_H_
+#ifndef INCLUDE_TSTACK_H_
+#define INCLUDE_TSTACK_H_
+#include <string>
 
-int countPairs1(int *arr, int len, int value) {
-  int count = 0;
-  for (int i = 0; i < len - 1; i++) {
-    for (int j = i + 1; j < len; j++) {
-      if (arr[i] + arr[j] == value) {
-        count += 1;
-      }
+template<typename T, int size>
+template <typename T, int size>
+class TStack {
+  // добавьте код стека
+ private:
+  T mass[size] = {0};
+  int a;
+
+ public:
+  TStack() { a = -1; }
+  void push(const T& value) {
+    if (full()) {
+      throw std::string("  empty!");
+    } else {
+      mass[++a] = value;
     }
   }
-  return count;
-}
+  T pol() const { return mass[a]; }
+  T pop() { return mass[a--]; }
+  int pri() const { return a; }
+  bool empty() const { return a == -1; }
+  bool full() const { return a == size; }
+};
 
-int countPairs2(int *arr, int len, int value) {
-  int count = 0;
-  for (int i = 0; i < len - 1; i++) {
-    for (int j = len - 1; i < j; j--) {
-      if (arr[i] + arr[j] == value) {
-        count += 1;
-      }
-    }
-  }
-  return count;
-}
-
-int countPairs3(int *arr, int len, int value) {
-  int count = 0;
-  for (int i = 0; i < len - 1; i++) {
-    int left = i, right = len;
-    while (left < right - 1) {
-      int mid = (left + right) / 2;
-      if (arr[i] + arr[mid] == value) {
-        count += 1;
-        int newmid = mid + 1;
-        while (arr[i] + arr[newmid] == value && newmid < right) {
-          count += 1;
-          newmid += 1;
-        }
-        newmid = mid - 1;
-        while (arr[i] + arr[newmid] == value && newmid > left) {
-          count += 1;
-          newmid -= 1;
-        }
-        break;
-      }
-      if (arr[i] + arr[mid] > value) {
-        right = mid;
-      } else {
-        left = mid;
-      }
-    }
-  }
-  return count;
-}
-
-#endif  // INCLUDE_TPAIRS_H_
+#endif  // INCLUDE_TSTACK_H_
