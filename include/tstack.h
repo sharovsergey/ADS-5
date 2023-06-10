@@ -1,116 +1,59 @@
 // Copyright 2021 NNTU-CS
-#include <iostream>
-#include <string>
-#include "include/tstack.h"
+#ifndef INCLUDE_TPAIRS_H_
+#define INCLUDE_TPAIRS_H_
 
-
-int priority(char c) {
-    if (c == '*' || c == '/')
-        return 2;
-    else if (c == '+' || c == '-')
-        return 1;
-    else
-        return 0;
-}
-
-
-std::string infx2pstfx(std::string inf) {
-    TStack<char, 100> stack;
-    std::string post;
-    int len = inf.length();
-
-    for (int i = 0; i < len; i++) {
-        char symbol = inf[i];
-
-        if (symbol >= '0' && symbol <= '9') {
-            post += symbol;
-            post += ' ';
-        }
-        else if (symbol == '(') {
-            stack.push(symbol);
-        }
-        else if (symbol == ')') {
-            while (stack.get() != '(') {
-                post += stack.get();
-                post += ' ';
-                stack.pop();
-            }
-            stack.pop();
-        }
-        else {
-            while (!stack.isEmpty() && priority(stack.get()) >= priority(symbol)) {
-                post += stack.get();
-                post += ' ';
-                stack.pop();
-            }
-            stack.push(symbol);
-        }
+int countPairs1(int *arr, int len, int value) {
+  int count = 0;
+  for (int i = 0; i < len - 1; i++) {
+    for (int j = i + 1; j < len; j++) {
+      if (arr[i] + arr[j] == value) {
+        count += 1;
+      }
     }
+  }
+  return count;
+}
 
-    while (!stack.isEmpty()) {
-        post += stack.get();
-        post += ' ';
-        stack.pop();
+int countPairs2(int *arr, int len, int value) {
+  int count = 0;
+  for (int i = 0; i < len - 1; i++) {
+    for (int j = len - 1; i < j; j--) {
+      if (arr[i] + arr[j] == value) {
+        count += 1;
+      }
     }
-
-    return post;
+  }
+  return count;
 }
 
-
-int eval(std::string post) {
-    TStack<int, 100> stack;
-    int len = post.length();
-
-    for (int i = 0; i < len; i++) {
-        char symbol = post[i];
-
-        if (symbol >= '0' && symbol <= '9') {
-            int num = 0;
-
-            while (symbol >= '0' && symbol <= '9') {
-                num = num * 10 + (symbol - '0');
-                i++;
-                symbol = post[i];
-            }
-
-            stack.push(num);
+int countPairs3(int *arr, int len, int value) {
+  int count = 0;
+  for (int i = 0; i < len - 1; i++) {
+    int left = i, right = len;
+    while (left < right - 1) {
+      int mid = (left + right) / 2;
+      if (arr[i] + arr[mid] == value) {
+        count += 1;
+        int newmid = mid + 1;
+        while (arr[i] + arr[newmid] == value && newmid < right) {
+          count += 1;
+          newmid += 1;
         }
-        else if (symbol != ' ') {
-            int operand2 = stack.get();
-            stack.pop();
-            int operand1 = stack.get();
-            stack.pop();
-
-            switch (symbol) {
-            case '+':
-                stack.push(operand1 + operand2);
-                break;
-            case '-':
-                stack.push(operand1 - operand2);
-                break;
-            case '*':
-                stack.push(operand1 * operand2);
-                break;
-            case '/':
-                stack.push(operand1 / operand2);
-                break;
-            }
+        newmid = mid - 1;
+        while (arr[i] + arr[newmid] == value && newmid > left) {
+          count += 1;
+          newmid -= 1;
         }
+        break;
+      }
+      if (arr[i] + arr[mid] > value) {
+        right = mid;
+      } else {
+        left = mid;
+      }
     }
-
-    return stack.get();
+  }
+  return count;
 }
 
-int main() {
-    setlocale(LC_ALL, "Russian");
-    std::string infixExpression = "(2+2)*2";
-    std::string postfixExpression = infx2pstfx(infixExpression);
-
-    std::cout << "Infix выражение: " << infixExpression << std::endl;
-    std::cout << "Postfix выражение: " << postfixExpression << std::endl;
-
-    int result = eval(postfixExpression);
-    std::cout << "Результат: " << result << std::endl;
-
-    return 0;
-}
+#endif  // INCLUDE_TPAIRS_H_
